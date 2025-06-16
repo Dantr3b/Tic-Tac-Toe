@@ -1,0 +1,92 @@
+# Tic-Tac-Toe Multiplayer & IA
+
+Ce projet est un jeu de morpion (Tic-Tac-Toe) en C# avec :
+- Un serveur multi-joueurs (console)
+- Un client console
+- Un client graphique Windows Forms (GUI)
+- Un mode solo contre une IA
+
+## Fonctionnalités
+
+- Jouer en multijoueur (2 clients humains)
+- Jouer en solo contre une IA
+- Interface graphique simple (WinForms)
+- Communication réseau via TCP
+- Architecture en 3 projets : `Server`, `Client`, `ClientGUI` (+ `Shared`)
+
+## Structure du projet
+
+```
+TicTacToeMultiplayer/
+│
+├── Server/         # Serveur du jeu (console)
+├── Client/         # Client console
+├── ClientGUI/      # Client graphique WinForms
+├── Shared/         # Classes partagées (Message, etc.)
+├── TicTacToeMultiplayer.sln
+└── .gitattributes
+```
+
+## Prérequis
+
+- [.NET 9.0 SDK](https://dotnet.microsoft.com/download/dotnet/9.0)
+- Windows (pour le client GUI)
+
+## Installation
+
+1. **Cloner le dépôt**
+   ```sh
+   git clone <url-du-repo>
+   cd TicTacToeMultiplayer
+   ```
+
+2. **Restaurer les dépendances**
+   ```sh
+   dotnet restore
+   ```
+
+3. **Compiler la solution**
+   ```sh
+   dotnet build
+   ```
+
+## Utilisation
+
+### 1. Lancer le serveur
+
+```sh
+dotnet run --project Server
+```
+
+### 2. Lancer un client
+
+- **Client console** :
+  ```sh
+  dotnet run --project Client
+  ```
+- **Client graphique** :
+  ```sh
+  dotnet run --project ClientGUI
+  ```
+
+### 3. Modes de jeu
+
+- **Solo (contre IA)** :  
+  Lancer un seul client GUI et choisir "Solo" dans l'interface.
+- **Multijoueur** :  
+  Lancer deux clients (console ou GUI), ils seront automatiquement appariés.
+
+## Dépendances
+
+- .NET 9.0
+- Windows Forms (pour le GUI)
+
+## Développement
+
+- Les messages réseau sont définis dans `Shared/Message.cs`
+- Le serveur gère les sessions et l'IA dans `Server/`
+- Le client GUI est dans `ClientGUI/`
+
+## Auteurs
+
+- Gabin Rolland-Bertrand
