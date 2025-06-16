@@ -9,13 +9,13 @@ namespace ClientGUI
 {
     public class GameClient
     {
-        private readonly GameForm _form;
-        private readonly bool _soloMode;
-        private TcpClient _client;
-        private StreamReader _reader;
-        private StreamWriter _writer;
-        private Thread _listenThread;
-        private bool _yourTurn;
+        private readonly GameForm _form;      // Référence au formulaire principal (UI)
+        private readonly bool _soloMode;      // Indique si on joue en solo contre l'IA
+        private TcpClient _client;            // Connexion TCP au serveur
+        private StreamReader _reader;         // Pour lire les messages du serveur
+        private StreamWriter _writer;         // Pour envoyer des messages au serveur
+        private Thread _listenThread;         // Thread d'écoute des messages serveur
+        private bool _yourTurn;               // Indique si c'est au tour du joueur
 
         public GameClient(GameForm form, bool soloMode)
         {
@@ -23,11 +23,11 @@ namespace ClientGUI
             _soloMode = soloMode;
         }
 
+        // Démarre la connexion au serveur (solo ou multi)
         public void Start()
         {
             if (_soloMode)
             {
-                // Démarrer le serveur local avec IA automatiquement (optionnel)
                 ConnectToServer();
             }
             else
@@ -36,6 +36,7 @@ namespace ClientGUI
             }
         }
 
+        // Établit la connexion TCP et démarre le thread d'écoute
         private void ConnectToServer()
         {
             try
@@ -45,6 +46,7 @@ namespace ClientGUI
                 _reader = new StreamReader(stream);
                 _writer = new StreamWriter(stream) { AutoFlush = true };
 
+                // Lance le thread qui écoute les messages du serveur
                 _listenThread = new Thread(Listen);
                 _listenThread.Start();
             }
@@ -54,6 +56,7 @@ namespace ClientGUI
             }
         }
 
+        // Envoie un coup au serveur si c'est le tour du joueur
         public void SendMove(string pos)
         {
             if (!_yourTurn) return;
@@ -69,6 +72,7 @@ namespace ClientGUI
             _yourTurn = false;
         }
 
+        // Thread d'écoute des messages du serveur
         private void Listen()
         {
             try
@@ -87,14 +91,17 @@ namespace ClientGUI
                         case "START":
                         case "END":
                         case "ERROR":
+                            // Affiche les messages d'information ou d'erreur dans l'UI
                             _form.ShowMessage(msg.Content);
                             break;
 
                         case "STATE":
+                            // Met à jour l'affichage du plateau
                             _form.UpdateBoard(msg.Content);
                             break;
 
                         case "YOUR_TURN":
+                            // Active le tour du joueur
                             _yourTurn = true;
                             break;
                     }

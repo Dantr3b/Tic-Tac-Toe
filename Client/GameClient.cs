@@ -16,8 +16,8 @@ namespace Client
         private StreamWriter _writer;
         private GameUI _ui = new();
 
-        private bool _yourTurn = false;
-        private bool _gameOver = false; 
+        private bool _yourTurn = false;   // Indique si c'est au tour du joueur
+        private bool _gameOver = false;   // Indique si la partie est terminée
 
         public GameClient(string serverIP, int port)
         {
@@ -25,6 +25,7 @@ namespace Client
             _port = port;
         }
 
+        // Démarre la connexion au serveur et la boucle de jeu principale
         public void Start()
         {
             try
@@ -36,9 +37,11 @@ namespace Client
                 _reader = new StreamReader(stream);
                 _writer = new StreamWriter(stream) { AutoFlush = true };
 
+                // Lance un thread pour écouter les messages du serveur
                 Thread listenThread = new Thread(Listen);
                 listenThread.Start();
 
+                // Boucle principale du client
                 while (true)
                 {
                     if (_gameOver) break; // Arrête la boucle si la partie est finie
@@ -48,10 +51,11 @@ namespace Client
                         Console.Write("Enter your move (row,col): ");
                         string input = Console.ReadLine();
 
+                        // Envoie le coup au serveur
                         Message move = new Message { Type = "MOVE", Content = input };
                         string json = JsonSerializer.Serialize(move);
                         _writer.WriteLine(json);
-                        _yourTurn = false;
+                        _yourTurn = false; // Attend la réponse du serveur
                     }
                 }
             }
@@ -61,6 +65,7 @@ namespace Client
             }
         }
 
+        // Écoute les messages du serveur dans un thread séparé
         private void Listen()
         {
             try
@@ -68,7 +73,7 @@ namespace Client
                 while (true)
                 {
                     string? line = _reader.ReadLine();
-                    if (line == null) break;
+                    if (line == null) break; // Fin de connexion
 
                     Message? msg = JsonSerializer.Deserialize<Message>(line);
                     if (msg == null) continue;
@@ -78,15 +83,18 @@ namespace Client
                         case "INFO":
                         case "START":
                         case "ERROR":
+                            // Affiche les messages d'information ou d'erreur
                             Console.WriteLine($"[SERVER] {msg.Content}");
                             break;
 
                         case "STATE":
+                            // Affiche le plateau de jeu
                             _ui.DisplayBoard(msg.Content);
                             break;
 
                         case "YOUR_TURN":
-                            if (!_gameOver) // Ne propose le tour que si la partie n'est pas finie
+                            // Active le tour du joueur si la partie n'est pas finie
+                            if (!_gameOver) 
                             {
                                 Console.WriteLine(">> It's your turn!");
                                 _yourTurn = true;
@@ -94,8 +102,9 @@ namespace Client
                             break;
 
                         case "END":
+                            // Affiche le message de fin de partie
                             Console.WriteLine($"[SERVER] {msg.Content}");
-                            _gameOver = true; // Marque la partie comme terminée
+                            _gameOver = true;
                             break;
                     }
                 }
